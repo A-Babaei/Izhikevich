@@ -1,0 +1,78 @@
+clc;clear;close all;
+% A.Babaei
+%% Izhikevich
+function simulartion_izhikevich()
+    % Parameters 
+    t_end = 200; % ms
+    dt = 0.25;   % ms
+
+    % Time vector
+    t = 0:dt:t_end-dt;
+
+    % Tonic Spiking
+    V_tonic = izhikevich_model(0.02, 0.2, -65, 6, 14, t);
+
+    % Plot results
+    figure('name','Izhikevich');
+    subplot(3,1,1);
+    plot(t, V_tonic);
+    xlabel('Time (ms)', 'FontSize', 18);
+    ylabel('Membrane potential (mV)', 'FontSize', 18);
+    title('Tonic Spiking - Izhikevich Model', 'FontSize', 20);
+    set(gca, 'FontSize', 18);
+
+    % Bursting
+    V_bursting = izhikevich_model(0.02, 0.2, -50, 2, 15, t);
+
+    % Plot results
+    subplot(3,1,2);
+    plot(t, V_bursting);
+    xlabel('Time (ms)', 'FontSize', 18);
+    ylabel('Membrane potential (mV)', 'FontSize', 18);
+    title('Bursting - Izhikevich Model', 'FontSize', 20);
+    set(gca, 'FontSize', 18);
+
+    % Resonator
+    V_resonator = izhikevich_model(0.1, 0.26, -65, 0, 0, t);
+
+    % Plot results
+    subplot(3,1,3);
+    plot(t, V_resonator);
+    xlabel('Time (ms)', 'FontSize', 18);
+    ylabel('Membrane potential (mV)', 'FontSize', 18);
+    title('Resonator - Izhikevich Model', 'FontSize', 20);
+    set(gca, 'FontSize', 18);
+
+end
+
+    % Simulates the Izhikevich neuron model
+function V_vec = izhikevich_model(a, b, c, d, I, t)
+    % Inputs:
+    %   a, b, c, d: Model parameters
+    %   I: Input current
+    %   t: Time vector
+    % Output:  V_vec: Membrane potential over time
+
+    dt = t(2) - t(1);
+    v = -65;    % Initial membrane potential
+    u = b * v;  % Initial recovery variable
+    V_vec = zeros(size(t)); % Pre-allocate for efficiency
+
+    for i = 1:length(t)
+
+        % Check for spike threshold
+        if v >= 30
+            v = c;     % Reset membrane potential
+            u = u + d; % Update recovery variable
+        end
+
+        % Calculate derivatives
+        dv = 0.04 * v^2 + 5 * v + 140 - u + I;
+        du = a * (b * v - u);
+
+        % Update membrane potential and recovery variable
+        v = v + dv * dt;
+        u = u + du * dt;
+        V_vec(i) = v;
+    end
+end
